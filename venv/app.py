@@ -14,7 +14,7 @@ app = Flask(__name__)
  
 
 
-conn = mysql.connector.connect(user='root', password='tiny',host='127.0.0.1',database='shop')
+conn = mysql.connector.connect(user='root', host='127.0.0.1',database='shop')
 cursor=conn.cursor()	
 
 
@@ -151,4 +151,4 @@ def dedata():
 		return (addshoe)
 
 if __name__ == '__main__':
-	app.run(port=5000,debug=True)
+        app.run(host='0.0.0.0', port=5000,debug=True)
