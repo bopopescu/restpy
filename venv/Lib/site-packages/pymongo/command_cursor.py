@@ -112,7 +112,7 @@ class CommandCursor(object):
             self.__killed = True
             raise
         except AutoReconnect:
-            # Don't send kill cursors to another server after a "not master"
+            # Don't send kill cursors to another server after a "not main"
             # error. It's completely pointless.
             self.__killed = True
             client.disconnect()

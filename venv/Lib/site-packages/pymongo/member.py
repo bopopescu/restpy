@@ -32,39 +32,39 @@ class Member(object):
     :Parameters:
       - `host`: A (host, port) pair
       - `connection_pool`: A Pool instance
-      - `ismaster_response`: A dict, MongoDB's ismaster response
+      - `ismain_response`: A dict, MongoDB's ismain response
       - `ping_time`: A MovingAverage instance
     """
     # For unittesting only. Use under no circumstances!
     _host_to_ping_time = {}
 
-    def __init__(self, host, connection_pool, ismaster_response, ping_time):
+    def __init__(self, host, connection_pool, ismain_response, ping_time):
         self.host = host
         self.pool = connection_pool
-        self.ismaster_response = ismaster_response
+        self.ismain_response = ismain_response
         self.ping_time = ping_time
-        self.is_mongos = (ismaster_response.get('msg') == 'isdbgrid')
+        self.is_mongos = (ismain_response.get('msg') == 'isdbgrid')
 
-        if ismaster_response['ismaster']:
+        if ismain_response['ismain']:
             self.state = PRIMARY
-        elif ismaster_response.get('secondary'):
+        elif ismain_response.get('secondary'):
             self.state = SECONDARY
-        elif ismaster_response.get('arbiterOnly'):
+        elif ismain_response.get('arbiterOnly'):
             self.state = ARBITER
         else:
             self.state = OTHER
 
-        self.set_name = ismaster_response.get('setName')
-        self.tags = ismaster_response.get('tags', {})
-        self.max_bson_size = ismaster_response.get(
+        self.set_name = ismain_response.get('setName')
+        self.tags = ismain_response.get('tags', {})
+        self.max_bson_size = ismain_response.get(
             'maxBsonObjectSize', common.MAX_BSON_SIZE)
-        self.max_message_size = ismaster_response.get(
+        self.max_message_size = ismain_response.get(
             'maxMessageSizeBytes', 2 * self.max_bson_size)
-        self.min_wire_version = ismaster_response.get(
+        self.min_wire_version = ismain_response.get(
             'minWireVersion', common.MIN_WIRE_VERSION)
-        self.max_wire_version = ismaster_response.get(
+        self.max_wire_version = ismain_response.get(
             'maxWireVersion', common.MAX_WIRE_VERSION)
-        self.max_write_batch_size = ismaster_response.get(
+        self.max_write_batch_size = ismain_response.get(
             'maxWriteBatchSize', common.MAX_WRITE_BATCH_SIZE)
 
         # self.min/max_wire_version is the server's wire protocol.
@@ -83,11 +83,11 @@ class Member(object):
                    common.MIN_SUPPORTED_WIRE_VERSION,
                    common.MAX_SUPPORTED_WIRE_VERSION))
 
-    def clone_with(self, ismaster_response, ping_time_sample):
-        """Get a clone updated with ismaster response and a single ping time.
+    def clone_with(self, ismain_response, ping_time_sample):
+        """Get a clone updated with ismain response and a single ping time.
         """
         ping_time = self.ping_time.clone_with(ping_time_sample)
-        return Member(self.host, self.pool, ismaster_response, ping_time)
+        return Member(self.host, self.pool, ismain_response, ping_time)
 
     @property
     def is_primary(self):
